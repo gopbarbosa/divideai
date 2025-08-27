@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { FlatList, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 import { useApp } from '../../context/AppContext';
 
@@ -86,48 +87,50 @@ export default function ItensScreen() {
   }
 
   return (
-    <KeyboardAvoidingView style={styles.flex1} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}>
-    <FlatList
-      data={despesas}
-      keyExtractor={item => item.id}
-      renderItem={({ item }) => (
-        <View style={styles.despesaBox}>
-          <Text style={styles.despesaDesc}>{item.descricao}</Text>
-          <Text style={styles.despesaValor}>R$ {item.valor.toFixed(2)}</Text>
-          <Text style={styles.despesaInfo}>Pagou: {participantes.find(p => p.id === item.quemPagou)?.nome || 'Desconhecido'}</Text>
-          <Text style={styles.despesaInfo}>Dividido entre: {item.participantes.map(pid => participantes.find(p => p.id === pid)?.nome || 'Desconhecido').join(', ')}</Text>
-          <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
-            <TouchableOpacity onPress={() => editar(item)}>
-              <Text style={styles.acao}>Editar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => excluir(item.id)}>
-              <Text style={[styles.acao, { color: '#e74c3c' }]}>Excluir</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-      ListEmptyComponent={<Text style={{ color: '#888', textAlign: 'center', marginTop: 24 }}>Nenhuma despesa</Text>}
-      ListHeaderComponent={
-        <HeaderForm
-          control={control}
-          errors={errors}
-          participantes={participantes}
-          quemPagou={quemPagou}
-          participantesSelecionados={participantesSelecionados}
-          setValue={setValue}
-          toggleParticipante={toggleParticipante}
-          handleSubmit={handleSubmit}
-          onSubmit={onSubmit}
-          editandoId={editandoId}
-          isSubmitting={isSubmitting}
+    <SafeAreaView style={styles.safeArea} edges={["top","left","right","bottom"]}>
+      <KeyboardAvoidingView style={styles.flex1} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}>
+        <FlatList
+          data={despesas}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.despesaBox}>
+              <Text style={styles.despesaDesc}>{item.descricao}</Text>
+              <Text style={styles.despesaValor}>R$ {item.valor.toFixed(2)}</Text>
+              <Text style={styles.despesaInfo}>Pagou: {participantes.find(p => p.id === item.quemPagou)?.nome || 'Desconhecido'}</Text>
+              <Text style={styles.despesaInfo}>Dividido entre: {item.participantes.map(pid => participantes.find(p => p.id === pid)?.nome || 'Desconhecido').join(', ')}</Text>
+              <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+                <TouchableOpacity onPress={() => editar(item)}>
+                  <Text style={styles.acao}>Editar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => excluir(item.id)}>
+                  <Text style={[styles.acao, { color: '#e74c3c' }]}>Excluir</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+          ListEmptyComponent={<Text style={{ color: '#888', textAlign: 'center', marginTop: 24 }}>Nenhuma despesa</Text>}
+          ListHeaderComponent={
+            <HeaderForm
+              control={control}
+              errors={errors}
+              participantes={participantes}
+              quemPagou={quemPagou}
+              participantesSelecionados={participantesSelecionados}
+              setValue={setValue}
+              toggleParticipante={toggleParticipante}
+              handleSubmit={handleSubmit}
+              onSubmit={onSubmit}
+              editandoId={editandoId}
+              isSubmitting={isSubmitting}
+            />
+          }
+          keyboardShouldPersistTaps="handled"
+          style={styles.list}
+          contentContainerStyle={styles.contentContainer}
+          removeClippedSubviews={false}
         />
-      }
-      keyboardShouldPersistTaps="handled"
-      style={styles.list}
-      contentContainerStyle={styles.contentContainer}
-      removeClippedSubviews={false}
-    />
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -267,6 +270,10 @@ const HeaderForm = React.memo(function HeaderForm({
 });
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f7f7fa',
+  },
   container: {
     flex: 1,
     padding: 20,

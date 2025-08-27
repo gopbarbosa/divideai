@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import ColorPicker, { colorKit, HueSlider, OpacitySlider, Panel1, PreviewText, Swatches } from 'reanimated-color-picker';
 import { useApp } from '../../context/AppContext';
 
@@ -100,109 +101,116 @@ export default function PessoasScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 32 }} keyboardShouldPersistTaps="handled">
-      <Text style={styles.titulo}>Participantes</Text>
-      <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="Nome"
-          value={nome}
-          onChangeText={setNome}
-        />
-        <TouchableOpacity style={styles.botao} onPress={salvar}>
-          <Text style={styles.botaoTexto}>{editandoId ? 'Salvar' : 'Adicionar'}</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.colorSection}>
-        <View style={styles.colorHeaderRow}>
-          <Text style={styles.colorLabel}>Cor</Text>
-          <TouchableOpacity
-            onPress={() => { setUsarCor(!usarCor); if (usarCor) { setAbrirPersonalizada(false); setCor(''); } }}
-            style={[styles.toggleChip, usarCor && styles.toggleChipOn]}
-          >
-            <Text style={[styles.toggleChipText, usarCor && styles.toggleChipTextOn]}>{usarCor ? 'Remover cor' : 'Definir cor'}</Text>
+    <SafeAreaView style={styles.safeArea} edges={["top","left","right","bottom"]}>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 32 }} keyboardShouldPersistTaps="handled">
+        <Text style={styles.titulo}>Participantes</Text>
+        <View style={styles.form}>
+          <TextInput
+            style={styles.input}
+            placeholder="Nome"
+            value={nome}
+            onChangeText={setNome}
+          />
+          <TouchableOpacity style={styles.botao} onPress={salvar}>
+            <Text style={styles.botaoTexto}>{editandoId ? 'Salvar' : 'Adicionar'}</Text>
           </TouchableOpacity>
         </View>
-        {usarCor && (
-          <>
-            <View style={styles.palette}>
-              {PALETA.map((c) => {
-                const selected = (cor || '') === c && !abrirPersonalizada;
-                return (
-                  <TouchableOpacity
-                    key={c}
-                    onPress={() => { setCor(c); setAbrirPersonalizada(false); }}
-                    style={[styles.colorChip, selected && styles.colorChipSelected, { backgroundColor: c }]}
-                    accessibilityLabel={`Selecionar cor ${c}`}
-                  />
-                );
-              })}
-              <TouchableOpacity
-                onPress={() => setAbrirPersonalizada(!abrirPersonalizada)}
-                style={[styles.colorChipCustom, abrirPersonalizada && styles.colorChipCustomOn]}
-              >
-                <Text style={styles.colorChipCustomText}>Outra cor…</Text>
-              </TouchableOpacity>
-            </View>
-            {abrirPersonalizada && (
-              <View style={styles.customRow}>
-                <View style={[styles.customPreview, { backgroundColor: /^#(?:[0-9a-fA-F]{3}){1,2}$/.test(cor) ? cor : '#ddd' }]} />
-                <View style={{ flex: 1, minWidth: 220 }}>
-                  <ColorPicker
-                    value={cor || customSwatches[0]}
-                    sliderThickness={22}
-                    thumbSize={24}
-                    thumbShape="circle"
-                    boundedThumb
-                    style={{ width: '100%', minHeight: 220 }}
-                    onChange={c => {
-                      'worklet';
-                    }}
-                    onCompleteJS={(c: { hex: string }) => setCor(c.hex)}
-                  >
-                    <Panel1 style={{ borderRadius: 12, marginBottom: 8 }} />
-                    <HueSlider style={{ marginVertical: 8 }} />
-                    <OpacitySlider style={{ marginBottom: 8 }} />
-                    <Swatches
-                      style={{ marginVertical: 8, flexWrap: 'wrap' }}
-                      swatchStyle={{ margin: 2, borderRadius: 8, borderWidth: 1, borderColor: '#ccc', width: 28, height: 28 }}
-                      colors={customSwatches}
+        <View style={styles.colorSection}>
+          <View style={styles.colorHeaderRow}>
+            <Text style={styles.colorLabel}>Cor</Text>
+            <TouchableOpacity
+              onPress={() => { setUsarCor(!usarCor); if (usarCor) { setAbrirPersonalizada(false); setCor(''); } }}
+              style={[styles.toggleChip, usarCor && styles.toggleChipOn]}
+            >
+              <Text style={[styles.toggleChipText, usarCor && styles.toggleChipTextOn]}>{usarCor ? 'Remover cor' : 'Definir cor'}</Text>
+            </TouchableOpacity>
+          </View>
+          {usarCor && (
+            <>
+              <View style={styles.palette}>
+                {PALETA.map((c) => {
+                  const selected = (cor || '') === c && !abrirPersonalizada;
+                  return (
+                    <TouchableOpacity
+                      key={c}
+                      onPress={() => { setCor(c); setAbrirPersonalizada(false); }}
+                      style={[styles.colorChip, selected && styles.colorChipSelected, { backgroundColor: c }]}
+                      accessibilityLabel={`Selecionar cor ${c}`}
                     />
-                    <PreviewText style={{ marginTop: 8, fontWeight: 'bold', color: '#222', fontSize: 15 }} colorFormat="hex" />
-                  </ColorPicker>
-                </View>
+                  );
+                })}
+                <TouchableOpacity
+                  onPress={() => setAbrirPersonalizada(!abrirPersonalizada)}
+                  style={[styles.colorChipCustom, abrirPersonalizada && styles.colorChipCustomOn]}
+                >
+                  <Text style={styles.colorChipCustomText}>Outra cor…</Text>
+                </TouchableOpacity>
               </View>
-            )}
-          </>
-        )}
-      </View>
-      {erro ? <Text style={styles.erro}>{erro}</Text> : null}
-      <View style={{ marginTop: 16 }}>
-        {participantes.length === 0 ? (
-          <Text style={{ color: '#888', textAlign: 'center', marginTop: 24 }}>Nenhum participante</Text>
-        ) : (
-          participantes.map(item => (
-            <View style={styles.participanteBox} key={item.id}>
-              {item.cor ? (
-                <View style={[styles.corBox, { backgroundColor: item.cor }]} />
-              ) : null}
-              <Text style={styles.nome}>{item.nome}</Text>
-              <TouchableOpacity onPress={() => editar(item)}>
-                <Text style={styles.acao}>Editar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => excluir(item.id)}>
-                <Text style={[styles.acao, { color: '#e74c3c' }]}>Excluir</Text>
-              </TouchableOpacity>
-            </View>
-          ))
-        )}
-      </View>
-    </ScrollView>
+              {abrirPersonalizada && (
+                <View style={styles.customRow}>
+                  <View style={[styles.customPreview, { backgroundColor: /^#(?:[0-9a-fA-F]{3}){1,2}$/.test(cor) ? cor : '#ddd' }]} />
+                  <View style={{ flex: 1, minWidth: 220 }}>
+                    <ColorPicker
+                      value={cor || customSwatches[0]}
+                      sliderThickness={22}
+                      thumbSize={24}
+                      thumbShape="circle"
+                      boundedThumb
+                      style={{ width: '100%', minHeight: 220 }}
+                      onChange={c => {
+                        'worklet';
+                      }}
+                      onCompleteJS={(c: { hex: string }) => setCor(c.hex)}
+                    >
+                      <Panel1 style={{ borderRadius: 12, marginBottom: 8 }} />
+                      <HueSlider style={{ marginVertical: 8 }} />
+                      <OpacitySlider style={{ marginBottom: 8 }} />
+                      <Swatches
+                        style={{ marginVertical: 8, flexWrap: 'wrap' }}
+                        swatchStyle={{ margin: 2, borderRadius: 8, borderWidth: 1, borderColor: '#ccc', width: 28, height: 28 }}
+                        colors={customSwatches}
+                      />
+                      <PreviewText style={{ marginTop: 8, fontWeight: 'bold', color: '#222', fontSize: 15 }} colorFormat="hex" />
+                    </ColorPicker>
+                  </View>
+                </View>
+              )}
+            </>
+          )}
+        </View>
+        {erro ? <Text style={styles.erro}>{erro}</Text> : null}
+        <View style={{ marginTop: 16 }}>
+          {participantes.length === 0 ? (
+            <Text style={{ color: '#888', textAlign: 'center', marginTop: 24 }}>Nenhum participante</Text>
+          ) : (
+            participantes.map(item => (
+              <View style={styles.participanteBox} key={item.id}>
+                {item.cor ? (
+                  <View style={[styles.corBox, { backgroundColor: item.cor }]} />
+                ) : null}
+                <Text style={styles.nome}>{item.nome}</Text>
+                <TouchableOpacity onPress={() => editar(item)}>
+                  <Text style={styles.acao}>Editar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => excluir(item.id)}>
+                  <Text style={[styles.acao, { color: '#e74c3c' }]}>Excluir</Text>
+                </TouchableOpacity>
+              </View>
+            ))
+          )}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+
   );    
 }
 
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f7f7fa',
+  },
   container: {
     flex: 1,
     padding: 20,
