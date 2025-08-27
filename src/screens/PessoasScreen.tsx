@@ -1,10 +1,8 @@
-
-
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useApp } from '../../context/AppContext';
 
-export default function ParticipantesScreen() {
+export default function PessoasScreen() {
   const { participantes, addParticipante, editParticipante, removeParticipante } = useApp();
   const [nome, setNome] = useState('');
   const [cor, setCor] = useState('');

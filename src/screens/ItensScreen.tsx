@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useApp } from '../../context/AppContext';
 
-function ItensScreen() {
+export default function ItensScreen() {
   const { participantes, despesas, addDespesa, editDespesa, removeDespesa } = useApp();
   const [valor, setValor] = useState('');
   const [descricao, setDescricao] = useState('');
@@ -147,8 +147,6 @@ function ItensScreen() {
     </ScrollView>
   );
 }
-
-export default ItensScreen;
 
 const styles = StyleSheet.create({
   container: {
