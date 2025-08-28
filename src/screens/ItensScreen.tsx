@@ -88,7 +88,7 @@ export default function ItensScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top","left","right","bottom"]}>
-      <KeyboardAvoidingView style={styles.flex1} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}>
+      <KeyboardAvoidingView style={styles.flex1} behavior={Platform.OS === 'ios' ? 'padding' : undefined} >
         <FlatList
           data={despesas}
           keyExtractor={item => item.id}

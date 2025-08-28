@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ColorPicker, { colorKit, HueSlider, OpacitySlider, Panel1, PreviewText, Swatches } from 'reanimated-color-picker';
 import { useApp } from '../../context/AppContext';
@@ -102,6 +102,7 @@ export default function PessoasScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top","left","right","bottom"]}>
+            <KeyboardAvoidingView style={styles.flex1} behavior={Platform.OS === 'ios' ? 'padding' : undefined} >
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 32 }} keyboardShouldPersistTaps="handled">
         <Text style={styles.titulo}>Participantes</Text>
         <View style={styles.form}>
@@ -200,6 +201,7 @@ export default function PessoasScreen() {
           )}
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
 
   );    
@@ -364,5 +366,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     backgroundColor: '#ddd',
+  },
+  flex1: {
+    flex: 1,
   },
 });

@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { FlatList, Share, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '../../context/AppContext';
 
 interface Item { nome: string; preco: number; pessoas: string[] }
 
 export default function ResumoScreen() {
-  const [servico, setServico] = useState('10');
+  const [mostrarTransf, setMostrarTransf] = useState(false);
   const [erro, setErro] = useState('');
   const { participantes, despesas } = useApp();
   const pessoas: string[] = participantes.map(p => p.nome);
@@ -27,8 +27,6 @@ export default function ResumoScreen() {
   }
 
   const valores = calcularDivisao();
-  const servicoNum = Number(servico);
-  const servicoValido = !isNaN(servicoNum) && servicoNum >= 0 && servicoNum <= 100;
 
 
 
@@ -87,10 +85,7 @@ export default function ResumoScreen() {
   const styles = StyleSheet.create({
     container: { flex: 1, padding: 20, backgroundColor: '#f7f7fa' },
     titulo: { fontSize: 24, fontWeight: 'bold', marginBottom: 16, color: '#2d2d2d', textAlign: 'center' },
-    servicoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 8 },
-    label: { fontSize: 16, color: '#222', minWidth: 90 },
-    input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 10, backgroundColor: '#fff', fontSize: 16, flex: 1 },
-    inputErro: { borderColor: '#e74c3c' },
+  // estilos de serviço removidos
     erro: { color: '#e74c3c', marginBottom: 8, textAlign: 'center' },
     pessoaBox: { backgroundColor: '#fff', borderRadius: 8, padding: 12, marginBottom: 12, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 },
     pessoaNome: { fontSize: 18, fontWeight: 'bold', color: '#4f8cff', marginBottom: 4 },
@@ -98,7 +93,32 @@ export default function ResumoScreen() {
     valorNum: { fontWeight: 'bold', color: '#2d2d2d' },
     botaoExportar: { backgroundColor: '#27ae60', borderRadius: 8, paddingVertical: 12, paddingHorizontal: 18, alignSelf: 'center', marginTop: 8, marginBottom: 8 },
     botaoExportarTexto: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+
     safeArea: { flex: 1, backgroundColor: '#f7f7fa' },
+    accordionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 24,
+      marginBottom: 4,
+      gap: 8
+    },
+    accordionIcon: {
+      fontSize: 18,
+      color: '#4f8cff',
+      marginLeft: 8,
+      marginTop: 2
+    },    transfBox: {
+      backgroundColor: '#fff',
+      borderRadius: 8,
+      padding: 16,
+      marginTop: 24,
+      shadowColor: '#000',
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
+      alignItems: 'stretch'
+    },
   });
 
 
@@ -106,46 +126,43 @@ export default function ResumoScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top","left","right","bottom"]}>
+        <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 32 }} keyboardShouldPersistTaps="handled">
       <View style={styles.container}>
-        <Text style={styles.titulo}>Resumo</Text>
-        <View style={styles.servicoRow}>
-          <Text style={styles.label}>Serviço (%)</Text>
-          <TextInput
-            style={[styles.input, !servicoValido ? styles.inputErro : null]}
-            value={servico}
-            onChangeText={v => { setServico(v.replace(/[^0-9.]/g, '')); setErro(''); }}
-            keyboardType="numeric"
-            maxLength={5}
-          />
+  <Text style={styles.titulo}>Resumo</Text>
+  <Text style={[styles.titulo, { fontSize: 20, marginTop: 12, marginBottom: 8, textAlign: 'left' }]}>Total por pessoa</Text>
+  {/* Serviço removido */}
+       
+        <View style={{ marginTop: 8, marginBottom: 24 }}>
+          {pessoas.length === 0 ? (
+            <Text style={{ color: '#888', textAlign: 'left', marginTop: 24 }}>Nenhuma pessoa</Text>
+          ) : (
+            pessoas.map((item) => (
+              <View key={item} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, marginBottom: 6, backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 16, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 1, elevation: 1 }}>
+                <Text style={{ fontSize: 17, color: '#4f8cff', fontWeight: 'bold' }}>{item}</Text>
+                <Text style={{ fontWeight: 'bold', color: '#27ae60', fontSize: 17 }}>R$ {valores[item]?.toFixed(2) || '0.00'}</Text>
+              </View>
+            ))
+          )}
         </View>
-        {!servicoValido && <Text style={styles.erro}>Digite uma porcentagem válida (0-100)</Text>}
-        <TouchableOpacity style={styles.botaoExportar} onPress={compartilharResumo}>
+
+        <Text style={[styles.titulo, { fontSize: 20, marginTop: 0, marginBottom: 8, textAlign: 'left' }]}>Pagamentos necessários</Text>
+        <View style={{ marginBottom: 16 }}>
+          {transferencias.length === 0 ? (
+            <Text style={{ color: '#888', textAlign: 'left' }}>Tudo certo! Ninguém deve nada.</Text>
+          ) : (
+            transferencias.map((t, idx) => (
+              <Text key={idx} style={{ color: '#222', fontSize: 16, marginBottom: 4, textAlign: 'left' }}>
+                {t.de} paga <Text style={{ color: '#27ae60', fontWeight: 'bold' }}>R$ {t.valor.toFixed(2)}</Text> para {t.para}
+              </Text>
+            ))
+          )}
+        </View>
+       <TouchableOpacity style={styles.botaoExportar} onPress={compartilharResumo}>
           <Text style={styles.botaoExportarTexto}>Exportar/Compartilhar resumo</Text>
         </TouchableOpacity>
-        <FlatList
-          data={pessoas}
-          keyExtractor={item => item}
-          renderItem={({ item }) => (
-            <View style={styles.pessoaBox}>
-              <Text style={styles.pessoaNome}>{item}</Text>
-              <Text style={styles.valor}>Sem serviço: <Text style={styles.valorNum}>R$ {valores[item]?.toFixed(2) || '0.00'}</Text></Text>
-              <Text style={styles.valor}>Com serviço: <Text style={styles.valorNum}>R$ {servicoValido ? ((valores[item] || 0) * (1 + servicoNum / 100)).toFixed(2) : '--'}</Text></Text>
-            </View>
-          )}
-          ListEmptyComponent={<Text style={{ color: '#888', textAlign: 'center', marginTop: 24 }}>Nenhuma pessoa</Text>}
-          style={{ marginTop: 16 }}
-        />
-        <Text style={[styles.titulo, { fontSize: 20, marginTop: 24 }]}>Quem deve para quem</Text>
-        {transferencias.length === 0 ? (
-          <Text style={{ color: '#888', textAlign: 'center', marginTop: 12 }}>Tudo certo! Ninguém deve nada.</Text>
-        ) : (
-          transferencias.map((t, idx) => (
-            <Text key={idx} style={{ color: '#222', fontSize: 16, textAlign: 'center', marginVertical: 2 }}>
-              {`${t.de} deve pagar R$ ${t.valor.toFixed(2)} para ${t.para}`}
-            </Text>
-          ))
-        )}
       </View>
+      
+      </ScrollView>
     </SafeAreaView>
   );
 
